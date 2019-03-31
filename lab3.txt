@@ -1,0 +1,127 @@
+#include<stdio.h>
+#include<stdlib.h>
+typedef char datetype;
+typedef struct node
+{
+	datetype date;
+	struct node *lchild,*rchild;
+}BSTree;
+struct no
+{
+	int a;
+	struct no *next;
+};
+typedef struct no node;
+node *top;
+void create(BSTree **p)
+{
+	char ch;
+	scanf("%c",&ch);
+	if(ch!='$')
+	{
+		*p=(BSTree *)malloc(sizeof(BSTree));
+		(*p)->date=ch;
+		create(&((*p)->lchild));
+		create(&((*p)->rchild));
+	}
+	else
+		*p=NULL;
+}
+
+int Ynumber(BSTree *p)
+{
+	if(p==NULL)
+		return 0;
+	if(p->lchild==NULL&&p->rchild==NULL)
+		return 1;
+	return (Ynumber(p->lchild)+Ynumber(p->rchild));
+}
+
+int weight(BSTree *p)
+{
+	int w,h;
+	if(p==NULL)
+		return 0;
+	else
+	{
+		w=weight(p->lchild);
+		h=weight(p->rchild);
+		return w>h?(w+1):(h+1);
+	}
+}
+
+void InitStack(node **top)
+{
+	*top=NULL;
+}
+void PushStack(node **top,int x)
+{
+	node *q;
+	q=(node *)(malloc(sizeof(node)));
+	q->a=x;
+	q->next=*top;
+	*top=q;
+}
+int PopStack(node **top)
+{
+	node *s;
+	int b;
+	if(top==NULL)
+	{
+		printf("Stack is empty");
+		return 0;
+	}
+	else
+	{
+		s=*top;
+		b=(*top)->a;
+		*top=(*top)->next;
+		free(s);
+		return b;
+	}
+}
+void visit(char a)
+{
+	int n,m,sum;
+		if(a>'0'&&a<'9')
+		{
+			n=a-'0';
+			PushStack(&top,n);
+		}
+		else
+		{
+			n=PopStack(&top);
+			m=PopStack(&top);
+			if(a=='+')
+				sum=m+n;
+			if(a=='-')
+				sum=n-m;
+			if(a=='*')
+				sum=n*m;
+			if(a=='/')
+				sum=n/m;
+			PushStack(&top,sum);
+		}
+}
+
+void RecPostOrder(BSTree *p)
+{
+	if(p!=NULL)
+	{
+		RecPostOrder(p->lchild);
+		RecPostOrder(p->rchild);
+		visit(p->date);
+	}
+}
+
+int main()
+{
+	BSTree *p;
+	create(&p);
+	InitStack(&top);
+	printf("%d\n",Ynumber(p));
+	printf("%d\n",weight(p));
+	RecPostOrder(p);
+	printf("%d\n",PopStack(&top));
+	return 0;
+}
